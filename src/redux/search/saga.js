@@ -7,7 +7,7 @@ import { vaildEmail } from '../../utils/helper';
 
 function* searchUsers({ payload }) {
   const { language, location } = payload;
-  const q = `language:${language}${location ? `+location:${location}` : ''}`;
+  const q = `type:user+language:${language}${location ? `+location:${location}` : ''}`;
   const redux = yield select();
   const users = redux.users.users;
 
@@ -55,9 +55,10 @@ function* getUsersInfo({ payload }) {
 
   for (let i = 0; i < payload.length; i++) {
     const login = payload[i].login;
-    const user = { login, emails: [], loading: true };
+    const user = { login, loading: true };
     yield put({ type: C.UPDATE_UESR, payload: user });
 
+    user.email = '';
     try {
       const { data: info } = yield call(axios.get, `https://api.github.com/users/${login}`);
       user.name = info.name;
@@ -66,21 +67,24 @@ function* getUsersInfo({ payload }) {
       user.followers = info.followers;
       user.following = info.following;
       if (vaildEmail(info.email)) {
-        user.emails.push(info.email);
+        user.email = info.email;
       } else {
-        const { data: events } = yield call(axios.get, `https://api.github.com/users/${login}/events`);
-        for (let i = 0; i < events.length; i++) {
-          const { commits } = events[i].payload;
-          if (commits) {
-            for (let j = 0; j < commits.length; j++) {
-              const { email, name } = commits[j].author;
-              if (name !== login && name !== user.name) continue;
-              if (email.includes('noreply')) continue;
-              if (user.emails.includes(email)) continue;
-              if (!vaildEmail(email)) continue;
-              user.emails.push(email);
-            }
+        const { data: repors } = yield call(axios.get, info.repos_url);
+        repors.sort((a, b) => (new Date(a.updated_at) < new Date(b.updated_at) ? 1 : -1));
+        for (let j = 0; j < repors.length; j++) {
+          const { data: commits } = yield call(axios.get, repors[j].commits_url.replace('{/sha}', ''));
+          for (let k = 0; k < commits.length; k++) {
+            const { author, commit } = commits[k];
+            const { email, name } = commit.author;
+            if (author) {
+              if (author.login !== login) continue;
+            } else if (name !== login && name !== user.name) continue;
+            if (email.includes('noreply')) continue;
+            if (!vaildEmail(email)) continue;
+            user.email = email;
+            break;
           }
+          if (user.email) break;
         }
       }
       status.success++;

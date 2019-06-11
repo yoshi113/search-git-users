@@ -55,15 +55,13 @@ class UsersPage extends React.Component {
     }
 
     const filteredUsers = users.filter(user => {
-      if (searchField === 'email') {
-        return !!user.emails.find(email => email.toLowerCase().indexOf(searchText) >= 0);
-      } else if (searchField) {
+      if (searchField) {
         return user[searchField] && user[searchField].toLowerCase().indexOf(searchText) >= 0;
       }
       return (
         (user.login && user.login.toLowerCase().indexOf(searchText) >= 0) ||
         (user.name && user.name.toLowerCase().indexOf(searchText) >= 0) ||
-        !!user.emails.find(email => email.toLowerCase().indexOf(searchText) >= 0) ||
+        (user.email && user.email.toLowerCase().indexOf(searchText) >= 0) ||
         (user.location && user.location.toLowerCase().indexOf(searchText) >= 0)
       );
     });
@@ -143,7 +141,7 @@ class UsersPage extends React.Component {
                       )}
                       <span>
                         <Icon type="mail" />
-                        {item.emails.join(', ')}
+                        {item.email}
                       </span>
                     </div>
                   </div>

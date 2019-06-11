@@ -103,16 +103,11 @@ async function getUsers() {
     if (member.last_note) {
       const note = member.last_note.note.replace(new RegExp('&quot;', 'g'), '"').replace(new RegExp('&amp;', 'g'), '&');
       const info = JSON.parse(note);
-      const item = items.find(item => item.login === info.login);
-      if (!item) {
-        items.push({
-          emails: [member.email_address],
-          name: member.merge_fields.FNAME,
-          ...info
-        });
-      } else {
-        item.emails.push(member.email_address);
-      }
+      items.push({
+        email: member.email_address,
+        name: member.merge_fields.FNAME,
+        ...info
+      });
     }
   });
   return Promise.resolve(items);

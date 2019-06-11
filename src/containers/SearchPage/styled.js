@@ -36,7 +36,7 @@ export default styled.div`
       text-decoration: underline;
     }
 
-    &.not-emails {
+    &.not-email {
       color: #f5222d;
     }
   }

@@ -45,19 +45,15 @@ class SearchPage extends React.Component {
         const users = [];
         this.props.searchUsers.forEach(user => {
           if (!user.status) {
-            user.emails.forEach(email => {
-              if (!users.find(item => item.email === email)) {
-                users.push({
-                  login: user.login,
-                  avatar: user.avatar,
-                  name: user.name,
-                  location: user.location,
-                  repos: user.repos,
-                  followers: user.followers,
-                  following: user.following,
-                  email
-                });
-              }
+            users.push({
+              login: user.login,
+              avatar: user.avatar,
+              name: user.name,
+              location: user.location,
+              repos: user.repos,
+              followers: user.followers,
+              following: user.following,
+              email: user.email
             });
           }
         });
@@ -177,7 +173,7 @@ class SearchPage extends React.Component {
                   <div>
                     <a
                       href={`https://github.com/${item.login}`}
-                      className={`user-id ${!item.loading && item.emails && !item.emails.length ? 'not-emails' : ''}`}
+                      className={`user-id ${item.email === '' ? 'not-email' : ''}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -200,10 +196,10 @@ class SearchPage extends React.Component {
                           {item.location}
                         </span>
                       )}
-                      {item.emails && !!item.emails.length && (
+                      {item.email && (
                         <span>
                           <Icon type="mail" />
-                          {item.emails.join(', ')}
+                          {item.email}
                         </span>
                       )}
                     </div>

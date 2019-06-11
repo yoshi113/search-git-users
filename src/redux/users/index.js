@@ -41,9 +41,9 @@ export default handleActions(
     // ---- add user ----
 
     [C.ADD_USER]: (state, { payload }) => {
-      let users = state.users.slice();
-      const user = users.find(user => user.login === payload.login);
-      if (!user) {
+      let users = state.users;
+      if (!users.find(user => user.login === payload.login)) {
+        users = users.slice();
         users.push({
           login: payload.login,
           avatar: payload.avatar,
@@ -52,12 +52,8 @@ export default handleActions(
           repos: payload.public_repos,
           followers: payload.followers,
           following: payload.following,
-          emails: [payload.email]
+          email: payload.email
         });
-      } else {
-        if (!user.emils.includes(payload.email)) {
-          user.emails.add(payload.email);
-        }
       }
       return {
         ...state,
