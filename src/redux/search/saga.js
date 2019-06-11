@@ -87,12 +87,16 @@ function* getUsersInfo({ payload }) {
           if (user.email) break;
         }
       }
-      status.success++;
-    } catch (error) {
-      status.failed++;
-    }
+    } catch (error) {}
+
     user.loading = false;
     yield put({ type: C.UPDATE_UESR, payload: user });
+
+    if (user.email) {
+      status.success++;
+    } else {
+      status.failed++;
+    }
     yield put({ type: C.SET_SEARCH_DATA, payload: { gettingStatus: { ...status } } });
   }
   yield put({ type: C.GET_UESRS_INFO_SUCCESS });
