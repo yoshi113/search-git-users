@@ -72,19 +72,21 @@ function* getUsersInfo({ payload }) {
         const { data: repors } = yield call(axios.get, info.repos_url);
         repors.sort((a, b) => (new Date(a.updated_at) < new Date(b.updated_at) ? 1 : -1));
         for (let j = 0; j < repors.length; j++) {
-          const { data: commits } = yield call(axios.get, repors[j].commits_url.replace('{/sha}', ''));
-          for (let k = 0; k < commits.length; k++) {
-            const { author, commit } = commits[k];
-            const { email, name } = commit.author;
-            if (author) {
-              if (author.login !== login) continue;
-            } else if (name !== login && name !== user.name) continue;
-            if (email.includes('noreply')) continue;
-            if (!vaildEmail(email)) continue;
-            user.email = email;
-            break;
-          }
-          if (user.email) break;
+          try {
+            const { data: commits } = yield call(axios.get, repors[j].commits_url.replace('{/sha}', ''));
+            for (let k = 0; k < commits.length; k++) {
+              const { author, commit } = commits[k];
+              const { email, name } = commit.author;
+              if (author) {
+                if (author.login !== login) continue;
+              } else if (name !== login && name !== user.name) continue;
+              if (email.includes('noreply')) continue;
+              if (!vaildEmail(email)) continue;
+              user.email = email;
+              break;
+            }
+            if (user.email) break;
+          } catch (error) {}
         }
       }
     } catch (error) {}
